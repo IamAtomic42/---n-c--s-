@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Danh sách nhân viên | Quản trị Admin</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Main CSS-->
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+  <!-- or -->
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+
+  <!-- Font-icon css-->
+  <link rel="stylesheet" type="text/css"
+    href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+
+</head>
+
+<body onload="time()" class="app sidebar-mini rtl">
+  <!-- Navbar-->
+  <header class="app-header">
+    <!-- Sidebar toggle button--><a class="app-sidebar__toggle" href="#" data-toggle="sidebar"
+      aria-label="Hide Sidebar"></a>
+    <!-- Navbar Right Menu-->
+    <ul class="app-nav">
+
+
+      <!-- User Menu-->
+      <li><a class="app-nav__item" href="/index.html"><i class='bx bx-log-out bx-rotate-180'></i> </a>
+
+      </li>
+    </ul>
+  </header>
+  <!-- Sidebar menu-->
+  <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+  <aside class="app-sidebar">
+    <div class="app-sidebar__user"><img class="app-sidebar__user-avatar" src="/images/dat.jpg" width="50px"
+        alt="User Image">
+      <div>
+        <p class="app-sidebar__user-name"><b>Duy Dat</b></p>
+        <p class="app-sidebar__user-designation">Chào mừng bạn trở lại</p>
+      </div>
+    </div>
+    <hr>
+    <ul class="app-menu">
+      <li><a class="app-menu__item active" href="table-data-product.html"><i
+            class='app-menu__icon bx bx-purchase-tag-alt'></i><span class="app-menu__label">Quản lý sản phẩm</span></a>
+      </li>
+      <li><a class="app-menu__item" href="table-data-oder.html"><i class='app-menu__icon bx bx-task'></i><span
+            class="app-menu__label">Quản lý đơn hàng</span></a></li>
+    </ul>
+  </aside>
+  <main class="app-content">
+    <div class="app-title">
+      <ul class="app-breadcrumb breadcrumb side">
+        <li class="breadcrumb-item active"><a href="#"><b>Danh sách sản phẩm</b></a></li>
+      </ul>
+      <div id="clock"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="tile">
+          <div class="tile-body">
+            <div class="row element-button">
+              <div class="col-sm-2">
+
+                <a class="btn btn-add btn-sm" href="form-add-san-pham.html" title="Thêm"><i class="fas fa-plus"></i>
+                  Tạo mới sản phẩm</a>
+              </div>
+              <div class="col-sm-2">
+                <a class="btn btn-delete btn-sm nhap-tu-file" type="button" title="Nhập" onclick="myFunction(this)"><i
+                    class="fas fa-file-upload"></i> Tải từ file</a>
+              </div>
+
+              <div class="col-sm-2">
+                <a class="btn btn-delete btn-sm print-file" type="button" title="In" onclick="myApp.printTable()"><i
+                    class="fas fa-print"></i> In dữ liệu</a>
+              </div>
+              <div class="col-sm-2">
+                <a class="btn btn-delete btn-sm print-file js-textareacopybtn" type="button" title="Sao chép"><i
+                    class="fas fa-copy"></i> Sao chép</a>
+              </div>
+
+              <div class="col-sm-2">
+                <a class="btn btn-excel btn-sm" href="" title="In"><i class="fas fa-file-excel"></i> Xuất Excel</a>
+              </div>
+              <div class="col-sm-2">
+                <a class="btn btn-delete btn-sm pdf-file" type="button" title="In" onclick="myFunction(this)"><i
+                    class="fas fa-file-pdf"></i> Xuất PDF</a>
+              </div>
+              <div class="col-sm-2">
+                <a class="btn btn-delete btn-sm" type="button" title="Xóa" onclick="myFunction(this)"><i
+                    class="fas fa-trash-alt"></i> Xóa tất cả </a>
+              </div>
+            </div>
+            <table class="table table-hover table-bordered" id="sampleTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Ảnh</th>
+                  <th>Mã Sản Phẩm</th>
+                  <th>Tình trạng</th>
+                  <th>Giá tiền</th>
+                  <th>Mẫu</th>
+                  <th>Thương Hiệu</th>
+                  <th>Chức năng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <script>
+                  var firebaseConfig = {
+                    apiKey: "AIzaSyCcSOPxFZaLwSQqWD64ucelooOANrKXspg",
+                    authDomain: "dtgundam-4bbe2.firebaseapp.com",
+                    projectId: "dtgundam-4bbe2",
+                    storageBucket: "dtgundam-4bbe2.appspot.com",
+                    messagingSenderId: "884011671848",
+                    appId: "1:884011671848:web:63a1ed5a855bf83196701d",
+                    measurementId: "G-S8FM4EHNGF"
+                  };
+                  // Initialize Firebase
+                  firebase.initializeApp(firebaseConfig);
+                  var db = firebase.firestore();
+                  var storageRef = firebase.storage().ref();
+
+                  function readProduct() {
+                    db.collection("Product").get().then((querySnapshot) => {
+                      var table = document.getElementById("sampleTable");
+                      var saveButton = document.getElementById("saveButton");
+                      var tbody = table.getElementsByTagName("tbody")[0];
+
+                      querySnapshot.forEach((doc) => {
+                        var data = doc.data();
+                        console.log({data})
+                        var row = document.createElement("tr");
+                        var cell1 = document.createElement("td");
+                        var cell2 = document.createElement("td");
+                        var cell3 = document.createElement("td");
+                        var cell4 = document.createElement("td");
+                        var cell5 = document.createElement("td");
+                        var cell6 = document.createElement("td");
+                        var cell7 = document.createElement("td");
+                        var cell8 = document.createElement("td");
+                        var cell9 = document.createElement("td");
+
+                        cell1.innerText = doc.id;
+                        cell2.innerText = data.nameProduct;
+                        cell4.innerText = data.figurecode;
+                        cell5.innerText = data.statusProduct;
+                        cell6.innerText = data.price;
+                        cell7.innerText = data.sample;
+                        cell8.innerText = data.brand;
+                       
+
+
+                        
+                        var editButton = document.createElement("button");
+                        editButton.setAttribute("id", "show-emp");
+                        editButton.setAttribute("class", "btn btn-primary btn-sm edit");
+                        editButton.setAttribute("data-toggle", "modal");
+                        editButton.setAttribute("data-target", "#ModalUP");
+                        editButton.setAttribute("title", "Sua");
+                        editButton.setAttribute("type", "button");
+
+                        var imageEdit = document.createElement("i")
+                        imageEdit.setAttribute("class", "fas fa-edit");
+
+                        editButton.appendChild(imageEdit);
+                        editButton.onclick = function () {
+                          var inputIdProduct = document.getElementById('idProduct');
+                          inputIdProduct.value = doc.id;
+
+                          var inputEditNameProduct = document.getElementById('editNameProduct');
+                          inputEditNameProduct.value = data.nameProduct;
+
+                          var editFigure = document.getElementById("eidtFigure");
+                          editFigure.value = data.editFigure;
+
+                          var editStatusProduct = document.getElementById('editStatusProduct');
+                          editStatusProduct.value = data.statusProduct;
+
+                          var editPriceProduct = document.getElementById('editPriceProduct');
+                          editPriceProduct.value = data.price;
+
+                          var editSample = document.getElementById('editSample');
+                          editSample.value = data.editSample;
+
+                          var editBrand = document.getElementById("editBrand");
+                          editBrand.value = data.editBrand;
+                        };
+
+                        saveButton.onclick = function () {
+                          var inputIdProduct = document.getElementById('idProduct');
+                          var documentId = inputIdProduct.value
+                          var docRef = db.collection("Product").doc(documentId);
+
+                          var inputEditNameProduct = document.getElementById('editNameProduct').value;
+
+                          var editStatusProduct = document.getElementById('editStatusProduct').value;
+
+                          var editFigure = document.getElementById('editFigure').value;
+
+                          var editPriceProduct = document.getElementById('editPriceProduct').value;
+
+                          var editBrand = document.getElementById('editBrand').value;
+
+                          // var editMenuProduct = document.getElementById('editMenuProduct').value;
+                          docRef.update({
+                            nameProduct: inputEditNameProduct,
+                            figure: editFigure,
+                            statusProduct: editStatusProduct,
+                            brand: editBrand,
+                            sample:editSample,
+                            price: editPriceProduct,
+                          })
+                            .then(() => {
+                              window.location.href = "/doc/table-data-product.html";
+                            })
+                            .catch((error) => {
+                              console.error("Error updating field: ", error);
+                            });
+                        }
+
+                        var deleteButton = document.createElement("button");
+                        deleteButton.setAttribute("class", "btn btn-primary btn-sm trash");
+                        deleteButton.setAttribute("title", "xoa");
+                        deleteButton.setAttribute("type", "button");
+
+                        var imageDelete = document.createElement("i")
+                        imageDelete.setAttribute("class", "fas fa-trash-alt");
+
+                        deleteButton.appendChild(imageDelete);
+
+                        deleteButton.onclick = function () {
+
+                          var docRef = db.collection("Product").doc(doc.id);
+
+                          if (confirm('có chắc chắn xóa không')) {
+                            docRef.delete()
+                              .then(() => {
+                                window.location.href = "/doc/table-data-product.html";
+                              })
+                              .catch((error) => {
+                                console.error("Error deleting document: ", error);
+                              });
+                          } else {
+                            return null
+                          }
+
+
+
+                        };
+                        storageRef.child(data.imageProduct).getDownloadURL().then(function (url) {
+                          console.log("URL: ", url);
+                          var img = document.createElement("img");
+                          img.setAttribute("width", "100px")
+                          img.src = url;
+                          cell3.appendChild(img);
+                        }).catch(function (error) {
+                          console.error("Error getting download URL: ", error);
+                        });
+
+                        cell9.appendChild(deleteButton);
+                        cell9.appendChild(editButton);
+
+                        row.appendChild(cell1);
+                        row.appendChild(cell2);
+                        row.appendChild(cell3);
+                        row.appendChild(cell4);
+                        row.appendChild(cell5);
+                        row.appendChild(cell6);
+                        row.appendChild(cell7);
+                        row.appendChild(cell8);
+                        row.appendChild(cell9);
+                        tbody.appendChild(row);
+
+                      });
+                    });
+                  }
+
+                  readProduct();
+
+
+                </script>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!--
+  MODAL
+-->
+  <div class="modal fade" id="ModalUP" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
+    data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+
+        <div class="modal-body">
+          <div class="row">
+            <div class="form-group  col-md-12">
+              <span class="thong-tin-thanh-toan">
+                <h5>Chỉnh sửa thông tin sản phẩm cơ bản</h5>
+              </span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <label class="control-label">ID </label>
+              <input class="form-control" type="text" id="idProduct" disabled>
+            </div>
+            <div class="form-group col-md-6">
+              <label class="control-label">Tên sản phẩm</label>
+              <input class="form-control" type="text" required id="editNameProduct">
+            </div>
+            <div class="form-group  col-md-6">
+              <label class="control-label">Mã sản phẩm </label>
+              <input class="form-control" type="number" id="editFigure">
+            </div>
+            <div class="form-group col-md-6 ">
+              <label for="exampleSelect1" class="control-label">Tình trạng sản phẩm</label>
+              <select class="form-control" id="editStatusProduct">
+                <option>In Stock</option>
+                <option>Out Stock</option>
+                <option>Đang nhập hàng</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label class="control-label">Giá bán</label>
+              <input class="form-control" id="editPriceProduct">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="exampleSelect1" class="control-label">Mẫu </label>
+              <select class="form-control" id="editSample">
+                <option>-- Chọn mẫu --</option>
+                <option>HG</option>
+                <option>MG</option>
+                <option>RG</option>
+                <option>PK</option>
+                <div class="form-group col-md-6">
+                  <label for="exampleSelect1" class="control-label">Thương Hiệu</label>
+                  <select class="form-control" id="editBrand">
+                    <option>-- Chọn thương hiệu --</option>
+                    <option>1/100 - RE/100</option>
+                    <option>30MM</option>
+                    <option>BANDAI</option>
+                    <option>BASE</option>
+                    <option>CUSTOM PART</option>
+                    <option>ENTRYGRADE</option>
+                  </select>
+                </div>
+            </div>
+            <BR>
+            <a href="#" style="    float: right;
+    font-weight: 600;
+    color: #ea0000;">Chỉnh sửa sản phẩm nâng cao</a>
+            <BR>
+            <BR>
+            <button class="btn btn-save" type="button" id="saveButton">Lưu lại</button>
+            <a class="btn btn-cancel" data-dismiss="modal" href="#">Hủy bỏ</a>
+            <BR>
+          </div>
+
+          <div class="modal-footer">
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--
+MODAL
+-->
+
+    <!-- Essential javascripts for application to work-->
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="src/jquery.table2excel.js"></script>
+    <script src="js/main.js"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script src="js/plugins/pace.min.js"></script>
+    <!-- Page specific javascripts-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    <!-- Data table plugin-->
+    <script type="text/javascript" src="js/plugins/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $('#sampleTable').DataTable();
+      //Thời Gian
+      function time() {
+        var today = new Date();
+        var weekday = new Array(7);
+        weekday[0] = "Chủ Nhật";
+        weekday[1] = "Thứ Hai";
+        weekday[2] = "Thứ Ba";
+        weekday[3] = "Thứ Tư";
+        weekday[4] = "Thứ Năm";
+        weekday[5] = "Thứ Sáu";
+        weekday[6] = "Thứ Bảy";
+        var day = weekday[today.getDay()];
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1;
+        var yyyy = today.getFullYear();
+        var h = today.getHours();
+        var m = today.getMinutes();
+        var s = today.getSeconds();
+        m = checkTime(m);
+        s = checkTime(s);
+        nowTime = h + " giờ " + m + " phút " + s + " giây";
+        if (dd < 10) {
+          dd = '0' + dd
+        }
+        if (mm < 10) {
+          mm = '0' + mm
+        }
+        today = day + ', ' + dd + '/' + mm + '/' + yyyy;
+        tmp = '<span class="date"> ' + today + ' - ' + nowTime +
+          '</span>';
+        document.getElementById("clock").innerHTML = tmp;
+        clocktime = setTimeout("time()", "1000", "Javascript");
+
+        function checkTime(i) {
+          if (i < 10) {
+            i = "0" + i;
+          }
+          return i;
+        }
+      }
+    </script>
+    <script>
+      function deleteRow(r) {
+        var i = r.parentNode.parentNode.rowIndex;
+        document.getElementById("myTable").deleteRow(i);
+      }
+      jQuery(function () {
+        jQuery(".trash").click(function () {
+          swal({
+            title: "Cảnh báo",
+            text: "Bạn có chắc chắn là muốn xóa sản phẩm này?",
+            buttons: ["Hủy bỏ", "Đồng ý"],
+          })
+            .then((willDelete) => {
+              if (willDelete) {
+                swal("Đã xóa thành công.!", {
+
+                });
+              }
+            });
+        });
+      });
+      oTable = $('#sampleTable').dataTable();
+      $('#all').click(function (e) {
+        $('#sampleTable tbody :checkbox').prop('checked', $(this).is(':checked'));
+        e.stopImmediatePropagation();
+      });
+    </script>
+</body>
+
+</html>

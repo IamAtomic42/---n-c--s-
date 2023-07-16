@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Thanh toán - DT Gundam</title>
+	<link rel="stylesheet" type="text/css" href="css/stylecheck.css">
+	<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-firestore.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-firestore.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+	<script>
+		var formartPrice = (price) => {
+			return new Intl.NumberFormat('vi-VN', { currency: 'VND' }).format(price)
+		}
+
+		var reloadPage = () => {
+			location.reload();
+		}
+	</script>
+</head>
+
+<body>
+	<header>
+		<h1>Gundam Store</h1>
+		<nav>
+			<ul>
+				<li><a href="./index.html">Trang chủ</a></li>
+				<li><a href="./col-HG.html">Sản phẩm</a></li>
+				<li><a href="./cart.html">Giỏ hàng</a></li>
+				<li class="active"><a href="./checkout.html">Thanh toán</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<div class="container">
+		<main>
+			<div>
+				<h2>Thông tin khách hàng</h2>
+				<div class='test'>
+					<label for="customer-name">Họ tên khách hàng:</label>
+					<input id="customer-name" type="text">
+				</div>
+				<div>
+					<label for="customer-phone">Số điện thoại:</label>
+					<input type="tel" id="customer-phone">
+				</div>
+				<div>
+					<label for="customer-address-detail">Số nhà, tên đường:</label>
+					<input type="text" id="customer-address-detail">
+				</div>
+				<div>
+					<label for="customer-province">Tỉnh/ thành phố:</label>
+					<input type="text" id="customer-province">
+				</div>
+				<div>
+					<label for="customer-district">Quận/ huyện:</label>
+					<input type="text" id="customer-district">
+				</div>
+				<div>
+					<label for="customer-ward">Phường/ xã:</label>
+					<input type="text" id="customer-ward">
+				</div>
+				
+			</div>
+		
+			<section>
+				<h2>Phương thức vận chuyển</h2>
+				<div>
+					<input type="radio" name="shipping-method" id="pickup" value="pickup">
+					<label for="pickup">Nhận tại cửa hàng</label>
+				</div>
+				<div>
+					<input type="radio" name="shipping-method" id="delivery" value="delivery">
+					<label for="delivery">Giao hàng tận nơi</label>
+				</div>
+				<div id="shipping-warning" style="color: red; display: none;">Vui lòng chọn tỉnh/thành để có danh sách
+					phương thức vận chuyển.</div>
+				<div>
+					<label for="shipping-note">Ghi chú:</label>
+					<textarea id="shipping-note"></textarea>
+				</div>
+			</section>
+
+			<section>
+				<h2>Phương thức thanh toán</h2>
+				<div>
+					<input type="radio" name="payment-method" id="bank-transfer" value="bank-transfer">
+					<label for="bank-transfer">Chuyển khoản đến Japan Figure</label>
+					<div class="payment-note">Số tài khoản: 1234567890</div>
+				</div>
+				<div>
+					<input type="radio" name="payment-method" id="e-wallet" value="e-wallet">
+					<label for="e-wallet">Chuyển tiền đến ví điện tử</label>
+					<div class="payment-note">Số điện thoại: 0987654321</div>
+				</div>
+				<div>
+					<input type="radio" name="payment-method" id="in-store" value="in-store">
+					<label for="in-store">Đến trực tiếp cửa hàng để thanh toán</label>
+					<div class="payment-note">Địa chỉ: 123 Đường ABC, Quận XYZ, TP. HCM</div>
+				</div>
+				<div>
+					<input type="radio" name="payment-method" id="cod" value="cod">
+					<label for="cod">Thanh toán khi nhận hàng (COD)</label>
+					<div class="payment-note">Áp dụng cho các sản phẩm có sẵn</div>
+				</div>
+			</section>
+		</main>
+
+		<aside>
+
+			<div class="product">
+
+				<label for="discount">Mã giảm giá:</label>
+				<input type="text" id="discount" name="discount">
+				<button type="button" id="apply-discount">Áp dụng</button>
+				<div class="totals">
+				</div>
+				<button class="submit" onclick="onSubmit()">
+					<h3>Thanh Toán</h3>
+				</button>
+				<script>
+					var productInCart = JSON.parse(localStorage.getItem('cart'));
+					var productcontainer = document.querySelector('.product')
+					productInCart.forEach((item) => {
+						productcontainer.innerHTML +=
+							`
+							<img src="${item.imageProduct}" alt="Gundam">
+							<h3>${item.nameProduct}</h3>
+							<p>Giá: ${formartPrice(item.price)} VND</p>
+						`
+					}
+					)
+					var getTotalPrice = () => {
+						var totalPrice = 0;
+						for (var i = 0; i < productInCart.length; i++) {
+							const part = productInCart[i];
+							totalPrice += parseInt(part.price);
+
+						};
+						var totals = totalPrice + 35000
+						var totalPriceElement = document.querySelector('.totals')
+						totalPriceElement.innerHTML =
+							`
+						 <p>Tổng tiền sản phẩm: ${formartPrice(totalPrice)} VND</p>
+						<p>Chi phí vận chuyển: 35.000 VND</p>
+						<p>Giảm giá: 0 VND</p>
+						<p>Thành tiền: ${formartPrice(totals)} VND</p> 
+						`
+						return totals
+					}
+
+					getTotalPrice()
+				</script>
+
+			</div>
+		</aside>
+	</div>
+
+	<footer>
+		<p>&copy; 2023 Gundam Store</p>
+	</footer>
+</body>
+<script>
+	var firebaseConfig = {
+		apiKey: "AIzaSyCcSOPxFZaLwSQqWD64ucelooOANrKXspg",
+		authDomain: "dtgundam-4bbe2.firebaseapp.com",
+		projectId: "dtgundam-4bbe2",
+		storageBucket: "dtgundam-4bbe2.appspot.com",
+		messagingSenderId: "884011671848",
+		appId: "1:884011671848:web:63a1ed5a855bf83196701d",
+		measurementId: "G-S8FM4EHNGF"
+	};
+
+
+	// Initialize Firebase
+	firebase.initializeApp(firebaseConfig);
+
+	// Get a reference to the database
+	var db = firebase.firestore();
+	var storageRef = firebase.storage().ref();
+
+	
+
+	async function onSubmit() {
+		var customerNameValue = document.getElementById('customer-name').value
+		var customerPhoneValue = document.getElementById('customer-phone').value
+		var customerAddressValue = document.getElementById('customer-address-detail').value
+		var customerProvinceValue = document.getElementById('customer-province').value
+		var customerDistrictValue = document.getElementById('customer-district').value
+		var customeWardValue = document.getElementById('customer-ward').value
+		var listNameProduct = productInCart.map(item=> item.nameProduct)
+		var totalPrices = getTotalPrice()
+
+		await db.collection("Order").add({
+		customerName: customerNameValue,
+		customerPhone: customerPhoneValue,
+		customerAddress: customerAddressValue,
+		customerProvince:customerProvinceValue,
+		customerDistrict: customerDistrictValue,
+		customeWard: customeWardValue,		
+		totalPrice:totalPrices,
+		listNameProduct		
+	})
+		.then(function (docRef) {
+			alert('Đã Thanh Toán Thành Công!');
+			localStorage.removeItem('cart')
+			window.location.href = "./index.html";
+
+		})
+		.catch(function (error) {
+			console.log("Error adding document: ", error);
+		});
+
+
+	}
+</script>
+
+
+</html>
